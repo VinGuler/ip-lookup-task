@@ -43,7 +43,8 @@ const handleInput = async (e: Event) => {
     return;
   }
 
-  let country, timezone;
+  let country = '';
+  let timezone = '';
   setLoading(true);
   try {
     const countryData = await searchCountry(newValue);
