@@ -16,7 +16,7 @@ const setTimezone = (timezone: string) => {
   countryTimezone.value = timezone;
 };
 
-const isInputValid = ref(false);
+const errorMessage = ref('');
 const IP_VALIDATION_REGEX = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
 const validateIp = (ip: string) => {
   const isValid = IP_VALIDATION_REGEX.test(ip);
@@ -32,20 +32,32 @@ const searchCountry = async (newIp: string) => {
 
 const inputValue = ref('');
 const handleInput = async (e: Event) => {
+  errorMessage.value = '';
   const newValue = (e.target as HTMLInputElement).value;
   inputValue.value = newValue;
-  isInputValid.value = validateIp(newValue);
-  if (!isInputValid.value) {
+
+  if (!validateIp(newValue)) {
+    errorMessage.value = 'Input is not a valid IPV4';
     handleChange({ ip: newValue, country: '' });
     setTimezone('');
     return;
   }
 
+  let country, timezone;
   setLoading(true);
-  const { country, timezone } = await searchCountry(newValue);
-  setLoading(false);
+  try {
+    const countryData = await searchCountry(newValue);
+    ({ country, timezone } = countryData);
+  } catch (e) {
+    errorMessage.value = 'Error fetching country data';
+    console.log('Error in searching', e);
+  } finally {
+    setLoading(false);
+  }
   if (!country || !timezone) {
-    isInputValid.value = false;
+    if (!errorMessage.value) {
+      errorMessage.value = 'No country data for IP';
+    }
     handleChange({ ip: newValue, country: '' });
     setTimezone('');
     return;
@@ -80,9 +92,9 @@ const handleRemove = () => {
       <template v-else>
         <CountryFlag v-if="country" :country-code="country" />
         <CountryTime v-if="countryTimezone" :timezone="countryTimezone" />
-        <span v-if="inputValue && !isInputValid" class="item__error"
-          >Input is not a valid IPV4</span
-        >
+        <span v-if="inputValue && errorMessage" class="item__error">{{
+          errorMessage
+        }}</span>
       </template>
     </div>
   </div>
