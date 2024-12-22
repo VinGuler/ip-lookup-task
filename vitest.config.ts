@@ -4,7 +4,9 @@ import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
-  plugins: [vue()],
+  // Only a type error
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  plugins: [vue() as any],
   test: {
     environment: 'jsdom',
     exclude: ['node_modules'],
