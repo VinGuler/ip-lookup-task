@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`component should match snapshot 1`] = `
+"<div data-v-38f33c32="" class="container">
+  <h1 data-v-38f33c32="" class="container__heading">IP Lookup</h1>
+  <hr data-v-38f33c32="">
+  <div data-v-38f33c32="" class="container__add-item">
+    <p data-v-38f33c32="">Enter 1 or more IP addresses and get their countries</p><button data-v-38f33c32="">+ Add</button>
+    <hr data-v-38f33c32="">
+  </div>
+  <div data-v-38f33c32="" class="container__items-container"></div>
+</div>"
+`;

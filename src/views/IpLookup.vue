@@ -3,7 +3,7 @@ import { reactive } from 'vue';
 import { type IpItem } from '@/types';
 import { createId } from '@/utils';
 
-import IpItemComponent from '@/components/IpItemComponent/index.vue';
+import IpItemComponent from '@/components/IpItemComponent.vue';
 
 const items = reactive<IpItem[]>([]);
 

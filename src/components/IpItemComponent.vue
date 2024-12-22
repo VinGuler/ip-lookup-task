@@ -1,26 +1,34 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 import { type IpItem } from '@/types';
 import { getCountryByIp } from '@/api';
 import CountryFlag from '@/components/ui/CountryFlag.vue';
 import CountryTime from '@/components/ui/CountryTime.vue';
 
-const { id, ip, country } = defineProps<IpItem>();
+type InputUpdate = {
+  ip?: string;
+  country?: string;
+  timezone?: string;
+};
+
+const props = defineProps<IpItem>();
 const emit = defineEmits<{
   (e: 'update', value: IpItem): void;
   (e: 'remove', value: string): void;
 }>();
-const handleChange = (update: { ip?: string; country?: string }) => {
+
+const handleChange = (update: InputUpdate) => {
+  setTimezone(update.timezone ?? '');
   const newItem: IpItem = {
-    id,
-    ip,
-    country,
+    id: props.id,
+    ip: props.ip,
+    country: props.country,
     ...update,
   };
   emit('update', newItem);
 };
 const handleRemove = () => {
-  emit('remove', id);
+  emit('remove', props.id);
 };
 
 const countryTimezone = ref('');
@@ -45,14 +53,18 @@ const searchCountry = async (newIp: string) => {
 
 const inputValue = ref('');
 const handleInput = async (e: Event) => {
-  errorMessage.value = '';
   const newValue = (e.target as HTMLInputElement).value;
   inputValue.value = newValue;
+  const update: InputUpdate = {
+    ip: newValue,
+    country: '',
+    timezone: '',
+  };
 
+  errorMessage.value = '';
   if (!validateIp(newValue)) {
     errorMessage.value = 'Input is not a valid IPV4';
-    handleChange({ ip: newValue, country: '' });
-    setTimezone('');
+    handleChange(update);
     return;
   }
 
@@ -60,23 +72,31 @@ const handleInput = async (e: Event) => {
   setLoading(true);
   try {
     countryData = await searchCountry(newValue);
+    update.country = countryData.country ?? '';
+    update.timezone = countryData.timezone ?? '';
   } catch (e) {
     errorMessage.value = 'Error fetching country data';
     console.log('Error in searching', e);
   } finally {
     setLoading(false);
   }
-  if (!countryData.country || !countryData.timezone) {
-    if (!errorMessage.value) {
+  if (!errorMessage.value) {
+    if (!countryData.country) {
       errorMessage.value = 'No country data for IP';
+    } else if (!countryData.timezone) {
+      errorMessage.value = 'No timezone data for IP';
     }
-    handleChange({ ip: newValue, country: '' });
-    setTimezone('');
-    return;
   }
-  setTimezone(countryData.timezone);
-  handleChange({ ip: newValue, country: countryData.country });
+
+  handleChange(update);
 };
+
+const inputElement = ref<HTMLInputElement>();
+onMounted(() => {
+  nextTick(() => {
+    inputElement.value?.focus();
+  });
+});
 </script>
 
 <template>
@@ -86,7 +106,12 @@ const handleInput = async (e: Event) => {
         <i class="em em-wastebasket"></i>
       </button>
       <label>
-        <input :disabled="loading" @blur="handleInput" />
+        <input
+          ref="inputElement"
+          :value="inputValue"
+          :disabled="loading"
+          @blur="handleInput"
+        />
       </label>
       <span v-if="loading" class="item__loading-container">loading...</span>
       <template v-else>
