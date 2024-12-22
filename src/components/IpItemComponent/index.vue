@@ -10,6 +10,18 @@ const emit = defineEmits<{
   (e: 'update', value: IpItem): void;
   (e: 'remove', value: string): void;
 }>();
+const handleChange = (update: { ip?: string; country?: string }) => {
+  const newItem: IpItem = {
+    id,
+    ip,
+    country,
+    ...update,
+  };
+  emit('update', newItem);
+};
+const handleRemove = () => {
+  emit('remove', id);
+};
 
 const countryTimezone = ref('');
 const setTimezone = (timezone: string) => {
@@ -25,6 +37,7 @@ const validateIp = (ip: string) => {
 
 const loading = ref(false);
 const setLoading = (isLoading: boolean) => (loading.value = isLoading);
+
 const searchCountry = async (newIp: string) => {
   const newCountry = await getCountryByIp(newIp);
   return { country: newCountry.countryCode, timezone: newCountry.timezone };
@@ -43,19 +56,17 @@ const handleInput = async (e: Event) => {
     return;
   }
 
-  let country = '';
-  let timezone = '';
+  let countryData = { country: '', timezone: '' };
   setLoading(true);
   try {
-    const countryData = await searchCountry(newValue);
-    ({ country, timezone } = countryData);
+    countryData = await searchCountry(newValue);
   } catch (e) {
     errorMessage.value = 'Error fetching country data';
     console.log('Error in searching', e);
   } finally {
     setLoading(false);
   }
-  if (!country || !timezone) {
+  if (!countryData.country || !countryData.timezone) {
     if (!errorMessage.value) {
       errorMessage.value = 'No country data for IP';
     }
@@ -63,20 +74,8 @@ const handleInput = async (e: Event) => {
     setTimezone('');
     return;
   }
-  setTimezone(timezone);
-  handleChange({ ip: newValue, country });
-};
-const handleChange = (update: { ip?: string; country?: string }) => {
-  const newItem: IpItem = {
-    id,
-    ip,
-    country,
-    ...update,
-  };
-  emit('update', newItem);
-};
-const handleRemove = () => {
-  emit('remove', id);
+  setTimezone(countryData.timezone);
+  handleChange({ ip: newValue, country: countryData.country });
 };
 </script>
 

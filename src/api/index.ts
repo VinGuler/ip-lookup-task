@@ -1,11 +1,10 @@
 export const getCountryByIp = async (
   ip: string,
-): Promise<{ country: string; countryCode: string; timezone: string }> => {
-  const res = await fetch(`https://ip-api.com/json/${ip}`);
+): Promise<{ countryCode: string; timezone: string }> => {
+  const res = await fetch(`https://ipinfo.io/${ip}?token=c1b4f355bf2e47`);
   const json = await res.json();
   return {
-    country: json.country,
-    countryCode: json.countryCode,
+    countryCode: json.country,
     timezone: json.timezone,
   };
 };
