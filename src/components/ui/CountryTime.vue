@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, defineProps, ref } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
 const { timezone } = defineProps<{ timezone: string }>();
 
 const countryTime = ref('');

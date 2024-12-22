@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, ref } from 'vue';
+import { ref } from 'vue';
 import { type IpItem } from '@/types';
 import { getCountryByIp } from '@/api';
 import CountryFlag from '@/components/ui/CountryFlag.vue';
