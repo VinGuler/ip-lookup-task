@@ -105,14 +105,14 @@ onMounted(() => {
       <button @click="handleRemove">
         <i class="em em-wastebasket"></i>
       </button>
-      <label>
-        <input
-          ref="inputElement"
-          :value="inputValue"
-          :disabled="loading"
-          @blur="handleInput"
-        />
-      </label>
+      <input
+        ref="inputElement"
+        placeholder="127.0.0.0"
+        name="IP Address"
+        :value="inputValue"
+        :disabled="loading"
+        @blur="handleInput"
+      />
       <span v-if="loading" class="item__loading-container">loading...</span>
       <template v-else>
         <CountryFlag v-if="country" :country-code="country" />
